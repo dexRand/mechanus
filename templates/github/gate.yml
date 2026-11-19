@@ -1,0 +1,57 @@
+# gate.yml — the L2 gate for a MECHANUS project (copy to .github/workflows/gate.yml).
+#
+# - Private repo  -> your self-hosted runner (label `gate`, see bin/new-runner-lxc.sh): no GitHub
+#   minutes used, as much RAM as you give the LXC.
+# - Public repo   -> GitHub-hosted ubuntu-latest (free and unlimited on public repos). Never
+#   point a public repo at a self-hosted runner: a fork PR would run code on your machine.
+# - The full suite is split into SHARDS parallel jobs, so a 2h gate becomes ~2h/SHARDS.
+#   On a private repo each shard needs its own runner instance (gh-runner@<owner>--<repo>--<n>).
+#
+# Replace the three <...> commands with the project's L0 / L1-less setup / L2 shard command.
+name: gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: gate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true   # a new push to the PR stops the old, now useless, run
+
+permissions:
+  contents: read
+
+jobs:
+  fast:
+    # L0 first: a lint error must not burn hours of the full suite.
+    runs-on: ${{ github.event.repository.private && fromJSON('["self-hosted","gate"]') || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        run: <install dependencies, e.g. npm ci / composer install / pip install -r requirements.txt>
+      - name: L0
+        run: <lint, types, build>
+
+  full:
+    needs: fast
+    runs-on: ${{ github.event.repository.private && fromJSON('["self-hosted","gate"]') || 'ubuntu-latest' }}
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false        # let every shard finish: the log tail must show all failures
+      matrix:
+        shard: [1, 2, 3, 4]   # SHARDS = 4; keep in sync with the total below
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        run: <install dependencies>
+      - name: L2 shard ${{ matrix.shard }}/4
+        # Examples:
+        #   jest:        npx jest --shard=${{ matrix.shard }}/4
+        #   playwright:  npx playwright test --shard=${{ matrix.shard }}/4
+        #   pest:        ./vendor/bin/pest --shard=${{ matrix.shard }}/4
+        #   pytest:      pytest --splits 4 --group ${{ matrix.shard }}   (pytest-split)
+        # Flaky tests: retry only the failed ones once (jest --retries / pytest --reruns 1 /
+        # playwright --retries=1), never the whole suite.
+        run: <L2 shard command>

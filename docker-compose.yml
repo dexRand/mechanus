@@ -1,0 +1,15 @@
+services:
+  mechanus:
+    build: .
+    ports:
+      - "${PORT:-4096}:4096"
+    env_file:
+      - .env
+    volumes:
+      - mechanus-state:/root/.local/share/opencode
+      - ${WORKSPACE_PATH:-./workspace}:/workspace
+    working_dir: /mechanus
+    restart: unless-stopped
+
+volumes:
+  mechanus-state:

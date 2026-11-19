@@ -1,0 +1,6 @@
+.env
+.env.*
+!.env.example
+.secrets/
+*.enc
+proxmox-jobs.sqlite3*

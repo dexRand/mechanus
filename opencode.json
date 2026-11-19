@@ -1,0 +1,53 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "MONOLITH-00",
+  "compaction": {
+    "buffer": "20%"
+  },
+  "tool_output": {
+    "max_lines": 200,
+    "max_bytes": 16384
+  },
+  "agents": {
+    "MONOLITH-00": {
+      "description": "Primary Orchestrator. Coordinates the swarm, talks to the user, plans and delegates to ASU units and ARBITER.",
+      "mode": "primary",
+      "model": "deepseek/deepseek-v4-pro",
+      "system": "{file:/workspace/mechanus/agents/MONOLITH-00.md}"
+    },
+    "ASU-001": {
+      "description": "Builder. Implements ONE well-briefed issue in its own git worktree, minimal and tested; commits on its branch, never pushes.",
+      "mode": "subagent",
+      "model": "deepseek/deepseek-flash",
+      "system": "{file:/workspace/mechanus/agents/ASU-001.md}",
+      "steps": 80
+    },
+    "ARBITER": {
+      "description": "Arbiter. Clean-context strict reviewer: tries to refute the builder's diff against the issue, re-runs tests and measures. Never edits.",
+      "mode": "subagent",
+      "model": "deepseek/deepseek-v4-pro",
+      "system": "{file:/workspace/mechanus/agents/ARBITER.md}",
+      "steps": 50,
+      "permissions": [
+        {
+          "action": "edit",
+          "resource": "*",
+          "effect": "deny"
+        }
+      ]
+    },
+    "RECON": {
+      "description": "Visual reconnaissance unit. Inspects images/screenshots (UI layout, alignment) and reports findings in text.",
+      "mode": "subagent",
+      "model": "deepseek/deepseek-flash",
+      "system": "{file:/workspace/mechanus/agents/RECON.md}",
+      "permissions": [
+        {
+          "action": "edit",
+          "resource": "*",
+          "effect": "deny"
+        }
+      ]
+    }
+  }
+}
