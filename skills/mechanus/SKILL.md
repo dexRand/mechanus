@@ -52,7 +52,7 @@ Ogni pezzo di lavoro è un'issue con: cosa, perché, criterio di «fatto», vinc
 | regola, pagina admin, endpoint, refactor con test | interfaccia e gusto (skill `impeccable`, screenshot) |
 | lavoro verificabile con i test | scritture su sistemi veri, prove manuali, ambienti di prova |
 | issue indipendenti → in parallelo | esplorazione di API sconosciute, decisioni |
-| | ritocchi da poche righe (costano meno di un giro) |
+| | ritocchi finali su un cambio già fatto (limatura post-arbitro, CHANGELOG) |
 
 ### Chi lavora l'issue (per etichetta)
 Lo smistamento lo decide l'etichetta scritta nell'issue, non un giudizio del momento. Senza etichetta: generalista.
@@ -63,6 +63,8 @@ Lo smistamento lo decide l'etichetta scritta nell'issue, non un giudizio del mom
 | `area:ui` | ASU-001 / `builder` | ARBITER / `arbiter` | + RECON per la vista (in aggiunta all'arbitro, non al suo posto); screenshot con `bin/screenshot.sh` |
 
 Una riga nuova solo quando esiste davvero l'agente (vedi *Agenti specializzati*). Un'issue con più etichette prende il percorso più rigoroso: se una qualunque etichetta prevede l'arbitro, l'arbitro c'è (le richieste non si sommano, si prende il massimo di cautela).
+
+Una modifica autonoma, anche di poche righe, è comunque un'issue (con etichetta `banale` se banale) e va al builder: i ritocchi che restano a te sono solo quelli sopra un cambio già fatto.
 
 - **Verifica visiva → RECON** (OpenCode, dove l'orchestratore è solo testo): screenshot di una pagina, allineamenti, spaziature, testo tagliato o sovrapposto, contrasto, confronto con il layout atteso. Lo screenshot lo scatta chi ha la pagina in esecuzione (tu, o il builder se lo scrivi nel brief) con `bin/screenshot.sh <url> <file.png> [larghezza,altezza]` (Playwright in Docker); a RECON dai il **percorso del file** e cosa ci si aspetta; ti torna un elenco di discrepanze per gravità, che diventa la lista di correzioni per il builder. In Claude Code guardi tu lo screenshot. Il gusto e le decisioni restano a te: RECON osserva, non decide.
 
