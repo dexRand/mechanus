@@ -22,6 +22,14 @@ Tu sei l'**orchestratore**: parli con l'utente, decidi, scrivi i brief, unisci. 
 
 **Vincolo di modello per RECON:** non tutti i modelli hanno la visione. `deepseek-v4-pro` (orchestratore e arbitro in OpenCode) è solo testo; `deepseek-flash` ha la visione. RECON **deve** stare su un modello con visione, e non va assunto: prima di affidarle un lavoro (e ogni volta che cambi il suo modello) **verifica** con un'immagine di prova che descriva cose che il testo non può sapere (colori, posizione degli elementi). Se risponde in modo vago o generico, il modello non vede.
 
+### Agenti specializzati
+Un agente nuovo (builder o arbitro) si crea **solo se cambia qualcosa che un prompt non può cambiare**: il **modello** (es. visione, più forte per i dati, più economico per i testi), gli **strumenti/permessi** (es. `bin/screenshot.sh`, `edit` negato) o i **tetti** (`steps`, lucchetti). RECON è il caso tipico: esiste perché ha un modello diverso.
+- Tutto il resto (convenzioni, checklist di un tipo di lavoro) va in una **skill** o nel brief, non in una "personalità": lo stesso modello con un'altra persona resta lo stesso modello, e N prompt da tenere allineati divergono.
+- Il nome dice la funzione (`ASU-UI`, `ARBITER-SEC`), non un numero: l'orchestratore sceglie anche dal nome.
+- Il prompt dello specialista contiene **solo la differenza**; le regole comuni (non pushare, niente L2, niente CHANGELOG) restano in questa skill.
+- La specializzazione rende di più in **revisione**: un arbitro con una checklist stretta (sicurezza, dati) trova ciò che uno generico salta.
+- **Uno alla volta, misurato**: un nuovo specialista lavora circa 10 issue della sua etichetta; confronta con il generalista token, giri dell'arbitro ed esito (§9). Se non vince, si toglie. Se resta, aggiungi la sua riga nella tabella del §3.
+
 Senza gli agenti installati, in Claude Code va bene anche `Agent` generico con `model: sonnet` / `model: opus`.
 
 Per rimandare un lavoro allo stesso agente col suo contesto: `SendMessage` (Claude Code) o il tool `subagent` con lo stesso `sessionID` (OpenCode).
@@ -35,6 +43,7 @@ Tetti veri, non solo istruzioni: in OpenCode `steps` per agente (es. ASU 80, ARB
 ## 2. Issue
 Ogni pezzo di lavoro è un'issue con: cosa, perché, criterio di «fatto», vincoli (cosa NON fare). L'issue è la memoria: si riparte da lì.
 - Le **decisioni di prodotto** (cosa è un errore, cosa si notifica, cosa si può cancellare) le prende l'utente o tu, mai il builder.
+- Metti l'**etichetta** che decide chi la lavora (tabella nel §3). La decidi tu, una volta, quando scrivi l'issue.
 - Rileggi il criterio di «fatto» con occhio cattivo: il builder lo eseguirà alla lettera, e i suoi test confermeranno anche un requisito sbagliato.
 
 ## 3. Smistamento
@@ -45,9 +54,19 @@ Ogni pezzo di lavoro è un'issue con: cosa, perché, criterio di «fatto», vinc
 | issue indipendenti → in parallelo | esplorazione di API sconosciute, decisioni |
 | | ritocchi da poche righe (costano meno di un giro) |
 
+### Chi lavora l'issue (per etichetta)
+Lo smistamento lo decide l'etichetta scritta nell'issue, non un giudizio del momento. Senza etichetta: generalista.
+| Etichetta | Builder | Arbitro | Note |
+|---|---|---|---|
+| *(nessuna)* | ASU-001 / `builder` | ARBITER / `arbiter` | il caso normale |
+| `banale` | ASU-001 / `builder` | nessuno | testi, configurazione, poche righe senza logica; solo L1 |
+| `area:ui` | ASU-001 / `builder` | ARBITER / `arbiter` + verifica visiva (RECON) | screenshot con `bin/screenshot.sh` |
+
+Una riga nuova solo quando esiste davvero l'agente (vedi *Agenti specializzati*). Un'issue con due etichette va all'agente più cauto (arbitro incluso).
+
 - **Verifica visiva → RECON** (OpenCode, dove l'orchestratore è solo testo): screenshot di una pagina, allineamenti, spaziature, testo tagliato o sovrapposto, contrasto, confronto con il layout atteso. Lo screenshot lo scatta chi ha la pagina in esecuzione (tu, o il builder se lo scrivi nel brief) con `bin/screenshot.sh <url> <file.png> [larghezza,altezza]` (Playwright in Docker); a RECON dai il **percorso del file** e cosa ci si aspetta; ti torna un elenco di discrepanze per gravità, che diventa la lista di correzioni per il builder. In Claude Code guardi tu lo screenshot. Il gusto e le decisioni restano a te: RECON osserva, non decide.
 
-- **Issue banali** (testi, configurazione, poche righe senza logica): builder e L1, **niente arbitro**. L'arbitro serve dove ci sono logica, dati o rischio: lì si ripaga.
+- **Issue banali** (etichetta `banale`: testi, configurazione, poche righe senza logica): builder e L1, **niente arbitro**. L'arbitro serve dove ci sono logica, dati o rischio: lì si ripaga.
 - **Un file, un proprietario:** due issue che toccano gli stessi file non vanno in parallelo, si mettono in fila.
 - **Git in fila:** le operazioni git sui worktree (rebase, commit di unione, push) le fai tu, una alla volta.
 
