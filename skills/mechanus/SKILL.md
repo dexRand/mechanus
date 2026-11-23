@@ -60,9 +60,9 @@ Lo smistamento lo decide l'etichetta scritta nell'issue, non un giudizio del mom
 |---|---|---|---|
 | *(nessuna)* | ASU-001 / `builder` | ARBITER / `arbiter` | il caso normale |
 | `banale` | ASU-001 / `builder` | nessuno | testi, configurazione, poche righe senza logica; solo L1 |
-| `area:ui` | ASU-001 / `builder` | ARBITER / `arbiter` + verifica visiva (RECON) | screenshot con `bin/screenshot.sh` |
+| `area:ui` | ASU-001 / `builder` | ARBITER / `arbiter` | + RECON per la vista (in aggiunta all'arbitro, non al suo posto); screenshot con `bin/screenshot.sh` |
 
-Una riga nuova solo quando esiste davvero l'agente (vedi *Agenti specializzati*). Un'issue con due etichette va all'agente più cauto (arbitro incluso).
+Una riga nuova solo quando esiste davvero l'agente (vedi *Agenti specializzati*). Un'issue con più etichette prende il percorso più rigoroso: se una qualunque etichetta prevede l'arbitro, l'arbitro c'è (le richieste non si sommano, si prende il massimo di cautela).
 
 - **Verifica visiva → RECON** (OpenCode, dove l'orchestratore è solo testo): screenshot di una pagina, allineamenti, spaziature, testo tagliato o sovrapposto, contrasto, confronto con il layout atteso. Lo screenshot lo scatta chi ha la pagina in esecuzione (tu, o il builder se lo scrivi nel brief) con `bin/screenshot.sh <url> <file.png> [larghezza,altezza]` (Playwright in Docker); a RECON dai il **percorso del file** e cosa ci si aspetta; ti torna un elenco di discrepanze per gravità, che diventa la lista di correzioni per il builder. In Claude Code guardi tu lo screenshot. Il gusto e le decisioni restano a te: RECON osserva, non decide.
 
