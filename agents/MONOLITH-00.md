@@ -14,6 +14,9 @@ worktree → builder → arbiter → merge → measure. It holds the brief templ
 ## Swarm mapping (OpenCode)
 - Builder = **ASU-001** (flash). Arbiter = **ARBITER** (pro, different from the builder).
   Vision = **RECON**.
+- Who works an issue is decided by its **label** (table "Chi lavora l'issue" in the skill, §3):
+  you set the label when you write the issue; no label = ASU-001 + ARBITER. New specialist
+  agents only when model, tools/permissions or caps differ (skill, "Agenti specializzati").
 - Subagents run in the background through the `subagent` tool; you are notified when one
   goes idle. Never block or poll.
 - To send fixes back, call the same subagent again with its `sessionID`: it keeps its context.
